@@ -1,0 +1,77 @@
+-- Step 1: Create Database and Use It
+CREATE DATABASE IF NOT EXISTS plsql;
+USE plsql;
+drop database plsql;
+-- Step 2: Create Tables
+CREATE TABLE IF NOT EXISTS borrower (
+    roll_no INT,
+    name VARCHAR(25),
+    dateofissue DATE,
+    name_of_book VARCHAR(30),
+    status VARCHAR(20)
+);
+
+CREATE TABLE IF NOT EXISTS fine (
+    roll_no INT,
+    date_of_return DATE,
+    amt INT
+);
+
+-- Step 3: Insert Sample Data
+INSERT INTO borrower VALUES 
+    (11, 'ANJALI', '2023-08-01', 'OPERATING SYSTEM', 'ISSUED'),
+    (12, 'HARSHADA', '2023-08-15', 'DATA STRUCTURE', 'ISSUED'),
+    (13, 'AJAY', '2023-08-24', 'DATABASE MANAGEMENT SYSTEM', 'ISSUED'),
+    (14, 'ABHISHEK', '2023-08-26', 'COMPUTER NETWORK', 'ISSUED'),
+    (15, 'JECITA', '2023-09-09', 'DISCRETE MATHEMATICS', 'ISSUED');
+
+-- Step 4: Create Stored Procedure for Fine Calculation
+DELIMITER //
+
+CREATE PROCEDURE CalculateFine(IN i_roll_no INT, IN name_of_book VARCHAR(30))
+BEGIN
+    DECLARE doi DATE;
+    DECLARE no_of_days INT;
+    DECLARE return_date DATE DEFAULT CURDATE();
+    DECLARE fine INT DEFAULT 0;
+
+    -- Get the date of issue for the specified roll number and book name
+    SELECT dateofissue INTO doi
+    FROM borrower
+    WHERE roll_no = i_roll_no AND name_of_book = name_of_book;
+
+    -- Calculate the number of overdue days
+    SET no_of_days = DATEDIFF(return_date, doi);
+
+    -- Calculate the fine based on overdue days
+    IF no_of_days > 15 AND no_of_days <= 30 THEN
+        SET fine = 5 * (no_of_days - 15);  -- Fine for days exceeding 15
+    ELSEIF no_of_days > 30 THEN
+        SET fine = 150 + (no_of_days - 30) * 50;  -- 150 for first 30 days, then 50 per extra day
+    END IF;
+
+    -- Insert fine record into the fine table
+    INSERT INTO fine (roll_no, date_of_return, amt)
+    VALUES (i_roll_no, return_date, fine);
+
+    -- Update borrower status to 'RETURNED'
+    UPDATE borrower 
+    SET status = 'RETURNED'
+    WHERE roll_no = i_roll_no AND name_of_book = name_of_book;
+
+    -- Display the number of overdue days and fine for confirmation
+    SELECT no_of_days AS "Overdue Days", fine AS "Fine Amount";
+END //
+
+DELIMITER ;
+
+-- Step 5: Call the Procedure with Example Inputs
+CALL CalculateFine(12, 'DATA STRUCTURE');
+
+-- Step 6: View the Updated Borrower and Fine Tables
+SELECT * FROM borrower;
+SELECT * FROM fine;
+
+-- Step 7: Clean Up (Drop Tables)
+DROP TABLE IF EXISTS borrower;
+DROP TABLE IF EXISTS fine;

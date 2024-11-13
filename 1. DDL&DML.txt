@@ -1,0 +1,64 @@
+create database practical;
+use practical;
+create table student(
+roll_no int primary key auto_increment,
+name varchar(50),
+age int,
+marks int
+);
+desc student;
+alter table student modify age int not null;
+desc student;
+insert into student
+(name,age,marks) 
+values
+('Shital',18,85),
+('Sakshi',18,82),
+('Sanket',19,80),
+('Gayatri',17,90),
+('Om',20,90);
+select * from student;
+update student set age = 19 where roll_no = 4;
+select * from student;
+delete from student where roll_no = 5;
+select * from student;
+select * from student where name LIKE 'S%';
+select * from student where name LIKE '%i';
+select name as student_Name from student;
+select name as student_Name from student order by name;
+select name as student_Name, Marks as topper from student order by name LIMIT 3;
+select name as student_Name, Marks as topper from student order by marks LIMIT 3;
+select roll_no, name from student where roll_no >=2 and roll_no <=3;
+alter table student add column city varchar(20);
+insert into student
+(name,age,marks,city) 
+values
+('Ishwar',21,55,'Nashik'),
+('Abhishek',19,95,'Nashik'),
+('Jack',18,85,'Mumbai'),
+('Sonam',22,87,'Sinnar');
+update student set city = 'Sinnar' where name = 'Shital';
+select * from student;
+select max(marks) from student;
+select min(marks) from student;
+select COUNT(marks) from student;
+select COUNT(marks) from student where marks >=90;
+select SUM(marks) from student;
+select SUM(marks / 10) from student;
+select AVG(marks) from student;
+select age, count(name) from student group by age;
+select age, max(marks) from student group by age;
+CREATE VIEW STUD_VIEW AS SELECT * FROM STUDent;
+show tables;
+create view stud_view as select * from student  ;
+select * from stud_view;
+create view stud_view2 as select * from student where city = 'Nashik' ;
+select * from stud_view2;
+update stud_view2 set marks = 96 where name = 'Ishwar';
+drop view stud_view2;
+select * from stud_view2;
+rename table stud_view to view_stud;
+select * from stud_view;
+select * from view_stud;
+create index nameindex on student(name);
+show index from student;

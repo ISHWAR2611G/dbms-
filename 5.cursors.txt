@@ -1,0 +1,78 @@
+-- Create the database and use it
+CREATE DATABASE IF NOT EXISTS assi5;
+USE assi5;
+drop database assi5;
+
+-- Show tables (this will only display tables after they are created)
+SHOW TABLES;
+
+-- Create tables old_roll and new_roll
+CREATE TABLE IF NOT EXISTS old_roll (
+    roll INT,
+    name VARCHAR(10)
+);
+
+CREATE TABLE IF NOT EXISTS new_roll (
+    roll INT,
+    name VARCHAR(10)
+);
+
+-- Insert values into old_roll
+INSERT INTO old_roll VALUES (4, 'd'), (3, 'bcd'), (1, 'bc'), (5, 'bch');
+
+-- Insert values into new_roll
+INSERT INTO new_roll VALUES (2, 'b'), (5, 'bch'), (1, 'bc');
+
+-- Display contents of old_roll and new_roll
+SELECT * FROM old_roll;
+SELECT * FROM new_roll;
+
+-- Set delimiter for stored procedure
+DELIMITER $$
+
+CREATE PROCEDURE roll_list()
+BEGIN
+    DECLARE oldrollnumber INT;
+    DECLARE oldname VARCHAR(10);
+    DECLARE newrollnumber INT;
+    DECLARE newname VARCHAR(10);
+    DECLARE done INT DEFAULT FALSE;
+
+    DECLARE c1 CURSOR FOR SELECT roll, name FROM old_roll;
+    DECLARE c2 CURSOR FOR SELECT roll FROM new_roll WHERE roll = oldrollnumber;
+
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+
+    OPEN c1;
+
+    loop1: LOOP
+        FETCH c1 INTO oldrollnumber, oldname;
+        IF done THEN
+            LEAVE loop1;
+        END IF;
+        
+        -- Check if the roll already exists in new_roll
+        SET done = FALSE;
+        OPEN c2;
+
+        FETCH c2 INTO newrollnumber;
+        IF done THEN
+            -- Insert only if the roll does not exist
+            INSERT INTO new_roll (roll, name) VALUES (oldrollnumber, oldname);
+            SET done = FALSE;
+        END IF;
+
+        CLOSE c2;
+    END LOOP;
+
+    CLOSE c1;
+END $$
+
+DELIMITER ;
+
+
+-- Call the stored procedure
+CALL roll_list();
+
+-- Display updated contents of new_roll
+SELECT * FROM new_roll;

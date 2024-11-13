@@ -1,0 +1,33 @@
+import mysql.connector
+
+def get_db_connection():
+    return mysql.connector.connect(
+        host='localhost',
+        user='root',
+        password='Password@1234',
+        database='Student'
+    )
+
+def add_user(name, roll):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute('INSERT INTO Information (Roll, name) VALUES (%s, %s)', (roll, name))
+        conn.commit()
+        print("User added successfully.")
+    except mysql.connector.Error as err:
+        print(f"Error: {err}")
+    finally:
+        cursor.close()
+        conn.close()
+
+if __name__ == '__main__':
+    user_name = input("Enter user name: ")
+    user_roll = input("Enter user roll: ")
+    add_user(user_name, user_roll)
+
+
+SQL Workbench 
+create database Student;
+use Student;
+create table Information(Roll int, name varchar(22));

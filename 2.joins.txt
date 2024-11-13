@@ -1,0 +1,85 @@
+-- Create the database and use it
+CREATE DATABASE IF NOT EXISTS ass2;
+USE ass2;
+
+-- Create 'stud' table
+CREATE TABLE student (
+    stud_id INT PRIMARY KEY AUTO_INCREMENT,
+    addmission_no INT NOT NULL,
+    fname VARCHAR(20) NOT NULL,
+    lname VARCHAR(20) NOT NULL,
+    age INT,
+    city VARCHAR(20) NOT NULL
+);
+
+-- Create 'fee' table
+CREATE TABLE fee (
+    addmission_no INT NOT NULL,
+    course VARCHAR(20),
+    amt_paid INT
+);
+
+-- Insert values into 'stud' table
+INSERT INTO student (addmission_no, fname, lname, age, city) 
+VALUES 
+    (1001, 'Harish', 'Shivekar', 20, 'Pune'),
+    (1002, 'Yash', 'Shivekar', 18, 'Pune'),
+    (1003, 'Tony', 'Stark', 45, 'USA'),
+    (1004, 'Dada', 'Kondke', 89, 'Thane'),
+    (1005, 'Salman', 'Khan', 54, 'Mumbai');
+
+-- Insert values into 'fee' table
+INSERT INTO fee (addmission_no, course, amt_paid) VALUES 
+    (1001, 'Java', 10000),
+    (1002, 'Python', 40000),
+    (1004, 'Kotlin', 20000),
+    (1005, 'HTML', 3000);
+
+-- Inner Join: Display students with fee details
+SELECT s.addmission_no, s.fname, s.lname, f.course, f.amt_paid 
+FROM student s 
+INNER JOIN fee f 
+ON s.addmission_no = f.addmission_no;
+
+-- Left Join: Display all students with their fee details (if any)
+SELECT s.addmission_no, s.fname, s.lname, f.course, f.amt_paid 
+FROM student s 
+LEFT JOIN fee f 
+ON s.addmission_no = f.addmission_no;
+
+-- Right Join: Display all fee records with student details (if any)
+SELECT s.addmission_no, s.fname, s.lname, f.course, f.amt_paid 
+FROM student s 
+RIGHT JOIN fee f 
+ON s.addmission_no = f.addmission_no;
+
+-- Full Outer Join (Union of Left and Right Join results)
+SELECT s.addmission_no, s.fname, s.lname, f.course, f.amt_paid 
+FROM student s 
+LEFT JOIN fee f 
+ON s.addmission_no = f.addmission_no
+UNION
+SELECT s.addmission_no, s.fname, s.lname, f.course, f.amt_paid 
+FROM student s 
+RIGHT JOIN fee f 
+ON s.addmission_no = f.addmission_no;
+
+-- Display all records from 'stud' table
+SELECT * FROM student;
+
+-- Display all records from 'fee' table
+SELECT * FROM fee;
+
+-- Display records from 'fee' table with a minimum payment of 3000
+SELECT * FROM fee WHERE amt_paid = (SELECT MIN(amt_paid) FROM fee WHERE amt_paid = 3000);
+
+-- Create a view 'studentfeeview' to display students with paid fee details
+CREATE VIEW studentfeeview AS 
+SELECT s.addmission_no, s.fname, s.lname, f.course, f.amt_paid 
+FROM student s 
+JOIN fee f 
+ON s.addmission_no = f.addmission_no
+WHERE f.amt_paid > 0;
+
+-- Display the view 'studfeeview'
+SELECT * FROM studentfeeview;
